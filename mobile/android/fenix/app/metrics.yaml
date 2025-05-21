@@ -11067,12 +11067,15 @@ recent_tabs:
     type: event
     description: |
       User has opened a recent tab from homescreen.
+    send_in_pings:
+      - home
     bugs:
       - https://github.com/mozilla-mobile/fenix/issues/19955
     data_reviews:
       - https://github.com/mozilla-mobile/fenix/pull/20138
       - https://github.com/mozilla-mobile/fenix/pull/24982
       - https://github.com/mozilla-mobile/firefox-android/pull/1101
+      - https://phabricator.services.mozilla.com/D245872
     data_sensitivity:
       - interaction
     notification_emails:

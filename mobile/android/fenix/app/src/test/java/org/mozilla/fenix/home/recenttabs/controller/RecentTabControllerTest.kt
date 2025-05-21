@@ -22,10 +22,12 @@ import mozilla.components.support.test.robolectric.testContext
 import mozilla.components.support.test.rule.MainCoroutineRule
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mozilla.fenix.GleanMetrics.Pings
 import org.mozilla.fenix.GleanMetrics.RecentTabs
 import org.mozilla.fenix.R
 import org.mozilla.fenix.components.AppStore
@@ -79,13 +81,20 @@ class RecentTabControllerTest {
         store.dispatch(TabListAction.AddTabAction(tab)).joinBlocking()
         store.dispatch(TabListAction.SelectTabAction(tab.id)).joinBlocking()
 
+        var pingReceived = false
+        Pings.home.testBeforeNextSubmit {
+            assertNotNull(RecentTabs.recentTabOpened.testGetValue())
+            pingReceived = true
+        }
+
         controller.handleRecentTabClicked(tab.id)
 
         verify {
             selectTabUseCase.selectTab.invoke(tab.id)
             navController.navigate(R.id.browserFragment)
         }
-        assertNotNull(RecentTabs.recentTabOpened.testGetValue())
+
+        assertTrue(pingReceived)
     }
 
     @Test
@@ -105,13 +114,20 @@ class RecentTabControllerTest {
         store.dispatch(TabListAction.AddTabAction(inProgressMediaTab)).joinBlocking()
         store.dispatch(TabListAction.SelectTabAction(inProgressMediaTab.id)).joinBlocking()
 
+        var pingReceived = false
+        Pings.home.testBeforeNextSubmit {
+            assertNotNull(RecentTabs.recentTabOpened.testGetValue())
+            pingReceived = true
+        }
+
         controller.handleRecentTabClicked(inProgressMediaTab.id)
 
         verify {
             selectTabUseCase.selectTab.invoke(inProgressMediaTab.id)
             navController.navigate(R.id.browserFragment)
         }
-        assertNotNull(RecentTabs.recentTabOpened.testGetValue())
+
+        assertTrue(pingReceived)
     }
 
     @Test
