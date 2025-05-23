@@ -20,6 +20,7 @@ class LastTabFeature(
     private val tabId: String? = null,
     private val removeTabUseCase: TabsUseCases.RemoveTabUseCase,
     private val activity: Activity,
+    private val shouldRemoveLastTab: Boolean = true,
 ) : LifecycleAwareFeature, UserInteractionHandler {
 
     override fun start() = Unit
@@ -38,11 +39,13 @@ class LastTabFeature(
             activity.finish()
             removeTabUseCase(tab.id)
             true
-        } else {
+        } else if (shouldRemoveLastTab) {
             val hasParent = tab is TabSessionState && tab.parentId != null
             removeTabUseCase(tab.id, selectParentIfExists = hasParent) // Alternatively, set this to always true.
             // We want to return to home if this session didn't have a parent session to select.
             hasParent
+        } else {
+            false
         }
     }
 }

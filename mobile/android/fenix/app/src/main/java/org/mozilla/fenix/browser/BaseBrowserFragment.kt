@@ -1087,10 +1087,11 @@ abstract class BaseBrowserFragment :
 
         lastTabFeature.set(
             feature = LastTabFeature(
-                requireComponents.core.store,
-                customTabSessionId,
-                requireComponents.useCases.tabsUseCases.removeTab,
-                requireActivity(),
+                store = requireComponents.core.store,
+                tabId = customTabSessionId,
+                removeTabUseCase = requireComponents.useCases.tabsUseCases.removeTab,
+                activity = requireActivity(),
+                shouldRemoveLastTab = false,
             ),
             owner = this,
             view = view,
