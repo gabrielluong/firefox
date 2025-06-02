@@ -9,6 +9,8 @@ import android.net.ConnectivityManager
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.getSystemService
 import androidx.navigation.NavController
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import mozilla.components.browser.errorpages.ErrorPages
 import mozilla.components.browser.errorpages.ErrorType
 import mozilla.components.concept.engine.EngineSession
@@ -87,6 +89,14 @@ class AppRequestInterceptor(
         return RequestInterceptor.ErrorResponse(errorPageUri)
     }
 
+    fun onNavigateBack(uri: String) {
+        interceptAboutHomeRequest(uri)
+    }
+
+    fun onNavigateForward(uri: String) {
+        interceptAboutHomeRequest(uri)
+    }
+
     /**
      * Intercepts [uri] request to [ABOUT_HOME] and navigates to the homepage.
      *
@@ -98,7 +108,10 @@ class AppRequestInterceptor(
             return false
         }
 
-        navController?.get()?.navigate(NavGraphDirections.actionGlobalHome())
+        MainScope().launch {
+            navController?.get()?.navigate(NavGraphDirections.actionGlobalHome())
+        }
+
         return true
     }
 

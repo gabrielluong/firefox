@@ -346,6 +346,7 @@ class Core(
                     applicationContext = context,
                     repository = DefaultHomepageAsANewTabPreferenceRepository(context.settings()),
                 ),
+                SessionHistoryInterceptorMiddleware(requestInterceptor),
             )
 
         BrowserStore(
