@@ -25,7 +25,6 @@ import mozilla.components.service.pocket.PocketStory.PocketSponsoredStory
 import mozilla.components.service.pocket.PocketStory.PocketSponsoredStoryCaps
 import mozilla.components.service.pocket.PocketStory.PocketSponsoredStoryShim
 import org.mozilla.fenix.R
-import org.mozilla.fenix.browser.browsingmode.BrowsingMode
 import org.mozilla.fenix.components.appstate.AppState
 import org.mozilla.fenix.components.appstate.setup.checklist.ChecklistItem
 import org.mozilla.fenix.compose.MessageCardColors
@@ -113,8 +112,6 @@ internal object FakeHomepagePreview {
     internal val privateBrowsingInteractor
         get() = object : PrivateBrowsingInteractor {
             override fun onLearnMoreClicked() { /* no op */ }
-
-            override fun onPrivateModeButtonClicked(newMode: BrowsingMode) { /* no op */ }
         }
 
     internal val topSitesInteractor

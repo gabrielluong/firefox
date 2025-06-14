@@ -46,7 +46,6 @@ class HomeScreenTest : TestSetup() {
         }.openSettings {
         }.goBack {
             verifyHomeWordmark()
-            verifyHomePrivateBrowsingButton()
             verifyExistingTopSitesTabs(activityTestRule, "Wikipedia")
             verifyExistingTopSitesTabs(activityTestRule, "Google")
             verifyCollectionsHeader(activityTestRule)
@@ -63,7 +62,11 @@ class HomeScreenTest : TestSetup() {
     // TestRail link: https://mozilla.testrail.io/index.php?/cases/view/244199
     @Test
     fun privateBrowsingHomeScreenItemsTest() {
-        homeScreen { }.togglePrivateBrowsingMode()
+        homeScreen {
+        }.openTabDrawer(activityTestRule) {
+        }.toggleToPrivateTabs {
+        }.openNewTab {
+        }.dismissSearchBar {}
 
         homeScreen {
             verifyPrivateBrowsingHomeScreenItems()

@@ -412,7 +412,10 @@ class SearchTest : TestSetup() {
         }.openTabDrawer(activityTestRule) {
         }.openThreeDotMenu {
         }.closeAllTabs {
-            togglePrivateBrowsingModeOnOff(composeTestRule = activityTestRule)
+        }.openTabDrawer(activityTestRule) {
+        }.toggleToNormalTabs {
+        }.openNewTab {
+        }.dismissSearchBar {
             verifyRecentlyVisitedSearchGroupDisplayed(activityTestRule, shouldBeDisplayed = false, searchTerm = queryString, groupSize = 3)
         }.openThreeDotMenu {
         }.openHistory {

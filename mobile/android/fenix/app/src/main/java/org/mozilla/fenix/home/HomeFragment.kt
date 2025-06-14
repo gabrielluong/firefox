@@ -73,7 +73,6 @@ import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.GleanMetrics.HomeScreen
-import org.mozilla.fenix.GleanMetrics.Homepage
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
@@ -511,7 +510,6 @@ class HomeFragment : Fragment() {
             ),
             privateBrowsingController = DefaultPrivateBrowsingController(
                 navController = findNavController(),
-                browsingModeManager = browsingModeManager,
                 fenixBrowserUseCases = requireComponents.useCases.fenixBrowserUseCases,
                 settings = components.settings,
             ),
@@ -852,15 +850,6 @@ class HomeFragment : Fragment() {
         toolbarView.build(requireComponents.core.store.state)
         if (requireContext().isTabStripEnabled()) {
             initTabStrip()
-        }
-
-        PrivateBrowsingButtonView(
-            button = binding.privateBrowsingButton,
-            showPrivateBrowsingButton = !requireContext().settings().enableHomepageAsNewTab,
-            browsingModeManager = browsingModeManager,
-        ) { newMode ->
-            sessionControlInteractor.onPrivateModeButtonClicked(newMode)
-            Homepage.privateModeIconTapped.record(NoExtras())
         }
 
         consumeFrom(requireComponents.core.store) {
@@ -1298,7 +1287,6 @@ class HomeFragment : Fragment() {
         }
 
         binding.wordmarkText.imageTintList = tintColor
-        binding.privateBrowsingButton.buttonTintList = tintColor
     }
 
     private fun observeWallpaperUpdates() {

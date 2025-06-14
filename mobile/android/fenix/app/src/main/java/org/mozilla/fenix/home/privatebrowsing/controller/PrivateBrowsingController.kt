@@ -6,9 +6,6 @@ package org.mozilla.fenix.home.privatebrowsing.controller
 
 import androidx.navigation.NavController
 import org.mozilla.fenix.R
-import org.mozilla.fenix.browser.BrowserFragmentDirections
-import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-import org.mozilla.fenix.browser.browsingmode.BrowsingModeManager
 import org.mozilla.fenix.components.usecases.FenixBrowserUseCases
 import org.mozilla.fenix.home.privatebrowsing.interactor.PrivateBrowsingInteractor
 import org.mozilla.fenix.settings.SupportUtils
@@ -22,11 +19,6 @@ interface PrivateBrowsingController {
      * @see [PrivateBrowsingInteractor.onLearnMoreClicked]
      */
     fun handleLearnMoreClicked()
-
-    /**
-     * @see [PrivateBrowsingInteractor.onPrivateModeButtonClicked]
-     */
-    fun handlePrivateModeButtonClicked(newMode: BrowsingMode)
 }
 
 /**
@@ -34,7 +26,6 @@ interface PrivateBrowsingController {
  */
 class DefaultPrivateBrowsingController(
     private val navController: NavController,
-    private val browsingModeManager: BrowsingModeManager,
     private val fenixBrowserUseCases: FenixBrowserUseCases,
     private val settings: Settings,
 ) : PrivateBrowsingController {
@@ -50,21 +41,5 @@ class DefaultPrivateBrowsingController(
             newTab = newTab,
             private = true,
         )
-    }
-
-    override fun handlePrivateModeButtonClicked(newMode: BrowsingMode) {
-        browsingModeManager.mode = newMode
-
-        if (newMode == BrowsingMode.Private) {
-            settings.incrementNumTimesPrivateModeOpened()
-        }
-
-        if (navController.currentDestination?.id == R.id.searchDialogFragment) {
-            navController.navigate(
-                BrowserFragmentDirections.actionGlobalSearchDialog(
-                    sessionId = null,
-                ),
-            )
-        }
     }
 }

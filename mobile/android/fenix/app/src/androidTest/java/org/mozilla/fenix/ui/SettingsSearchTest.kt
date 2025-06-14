@@ -508,8 +508,9 @@ class SettingsSearchTest : TestSetup() {
     @Test
     fun doNotAllowSearchSuggestionsInPrivateBrowsingTest() {
         homeScreen {
-            togglePrivateBrowsingModeOnOff(composeTestRule = activityTestRule)
-        }.openSearch {
+        }.openTabDrawer(activityTestRule) {
+        }.toggleToPrivateTabs {
+        }.openNewTab {
             typeSearch("mozilla")
             verifyAllowSuggestionsInPrivateModeDialog()
             denySuggestionsInPrivateMode()
@@ -522,8 +523,9 @@ class SettingsSearchTest : TestSetup() {
     @Test
     fun allowSearchSuggestionsInPrivateBrowsingTest() {
         homeScreen {
-            togglePrivateBrowsingModeOnOff(composeTestRule = activityTestRule)
-        }.openSearch {
+        }.openTabDrawer(activityTestRule) {
+        }.toggleToPrivateTabs {
+        }.openNewTab {
             typeSearch("mozilla")
             verifyAllowSuggestionsInPrivateModeDialog()
             allowSuggestionsInPrivateMode()

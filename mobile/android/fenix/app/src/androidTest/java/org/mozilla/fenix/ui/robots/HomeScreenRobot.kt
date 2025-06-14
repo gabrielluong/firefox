@@ -24,7 +24,6 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -79,7 +78,6 @@ import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_PRIVATE_BROWSING_LEARN
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_STORY
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_WORDMARK_LOGO
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_WORDMARK_TEXT
-import org.mozilla.fenix.home.ui.HomepageTestTag.PRIVATE_BROWSING_HOMEPAGE_BUTTON
 import org.mozilla.fenix.tabstray.TabsTrayTestTag
 
 /**
@@ -92,17 +90,15 @@ class HomeScreenRobot {
 
     fun verifyPrivateBrowsingHomeScreenItems() {
         verifyHomeScreenAppBarItems()
-        assertUIObjectExists(
-            itemContainingText(
-                getStringResource(R.string.felt_privacy_desc_card_title),
-            ),
-        )
+        verifyPrivateBrowsingDescription()
     }
 
     fun verifyHomeScreenAppBarItems() =
-        assertUIObjectExists(homeScreen(), privateBrowsingButton(), homepageWordmarkLogo(), homepageWordmarkText())
+        assertUIObjectExists(homeScreen(), homepageWordmarkLogo(), homepageWordmarkText())
 
-    fun verifyHomePrivateBrowsingButton() = assertUIObjectExists(privateBrowsingButton())
+    fun verifyPrivateBrowsingDescription(exists: Boolean = true) =
+        assertUIObjectExists(privateBrowsingDescription(), exists = exists)
+
     fun verifyHomeMenuButton() = assertUIObjectExists(menuButton())
     fun verifyTabButton() {
         Log.i(TAG, "verifyTabButton: Trying to verify tab counter button is visible")
@@ -425,12 +421,6 @@ class HomeScreenRobot {
         }
     }
 
-    fun togglePrivateBrowsingModeOnOff(composeTestRule: ComposeTestRule) {
-        Log.i(TAG, "togglePrivateBrowsingModeOnOff: Trying to click private browsing home screen button")
-        composeTestRule.onNodeWithContentDescription(getStringResource(R.string.content_description_private_browsing)).performClick()
-        Log.i(TAG, "togglePrivateBrowsingModeOnOff: Clicked private browsing home screen button")
-    }
-
     fun verifyThoughtProvokingStories(enabled: Boolean) {
         if (enabled) {
             assertUIObjectExists(itemContainingText(getStringResource(R.string.pocket_stories_header_2)))
@@ -525,7 +515,11 @@ class HomeScreenRobot {
 
     fun verifyIfInPrivateOrNormalMode(privateBrowsingEnabled: Boolean) {
         Log.i(TAG, "verifyIfInPrivateOrNormalMode: Trying to verify private browsing mode is enabled")
-        assert(isPrivateModeEnabled() == privateBrowsingEnabled)
+        if (privateBrowsingEnabled) {
+            verifyPrivateBrowsingDescription()
+        } else {
+            verifyPrivateBrowsingDescription(exists = false)
+        }
         Log.i(TAG, "verifyIfInPrivateOrNormalMode: Verified private browsing mode is enabled: $privateBrowsingEnabled")
     }
 
@@ -662,23 +656,6 @@ class HomeScreenRobot {
                 Log.i(TAG, "togglePrivateBrowsingMode: Clicked private browsing button")
             }
         }
-
-        fun triggerPrivateBrowsingShortcutPrompt(interact: AddToHomeScreenRobot.() -> Unit): AddToHomeScreenRobot.Transition {
-            // Loop to press the PB icon for 5 times to display the Add the Private Browsing Shortcut CFR
-            for (i in 1..5) {
-                Log.i(TAG, "triggerPrivateBrowsingShortcutPrompt: Waiting for $waitingTime ms for private browsing button to exist")
-                mDevice.findObject(UiSelector().resourceId("$packageName:id/privateBrowsingButton"))
-                    .waitForExists(
-                        waitingTime,
-                    )
-                Log.i(TAG, "triggerPrivateBrowsingShortcutPrompt: Waited for $waitingTime ms for private browsing button to exist")
-                Log.i(TAG, "triggerPrivateBrowsingShortcutPrompt: Trying to click private browsing button")
-                privateBrowsingButton().click()
-                Log.i(TAG, "triggerPrivateBrowsingShortcutPrompt: Clicked private browsing button")
-            }
-
-            AddToHomeScreenRobot().interact()
-            return AddToHomeScreenRobot.Transition()
         }
 
         fun pressBack() {
@@ -939,17 +916,17 @@ private fun sponsoredShortcut(sponsoredShortcutTitle: String) =
 
 private fun homeScreen() =
     itemWithResId("$packageName:id/homepageView")
-private fun privateBrowsingButton() =
-    itemWithResId(PRIVATE_BROWSING_HOMEPAGE_BUTTON)
-
-private fun isPrivateModeEnabled(): Boolean =
-    itemWithResId(PRIVATE_BROWSING_HOMEPAGE_BUTTON).isChecked
 
 private fun homepageWordmarkLogo() =
     itemWithResId(HOMEPAGE_WORDMARK_LOGO)
 
 private fun homepageWordmarkText() =
     itemWithResId(HOMEPAGE_WORDMARK_TEXT)
+
+private fun privateBrowsingDescription() =
+    itemContainingText(
+        getStringResource(R.string.felt_privacy_desc_card_title),
+    )
 
 private fun navigationToolbar() =
     itemWithResId("$packageName:id/toolbar")

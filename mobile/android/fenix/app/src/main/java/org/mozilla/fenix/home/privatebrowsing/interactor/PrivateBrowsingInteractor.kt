@@ -4,8 +4,6 @@
 
 package org.mozilla.fenix.home.privatebrowsing.interactor
 
-import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-
 /**
  * Interface for private browsing mode related actions.
  */
@@ -15,9 +13,4 @@ interface PrivateBrowsingInteractor {
      * "Common myths about private browsing" link in private mode.
      */
     fun onLearnMoreClicked()
-
-    /**
-     * Called when a user clicks on the Private Mode button on the homescreen.
-     */
-    fun onPrivateModeButtonClicked(newMode: BrowsingMode)
 }

@@ -161,12 +161,11 @@ class NavigationToolbarTest : TestSetup() {
     fun goToHomeScreenInPrivateModeTest() {
         val genericURL = TestAssetHelper.getGenericAsset(mockWebServer, 1)
 
-        homeScreen {
-            togglePrivateBrowsingModeOnOff(composeTestRule = composeTestRule)
-        }
-
         navigationToolbar {
-        }.enterURLAndEnterToBrowser(genericURL.url) {
+        }.openTabDrawer(composeTestRule) {
+        }.toggleToPrivateTabs {
+        }.openNewTab {
+        }.submitQuery(genericURL.url.toString()) {
             mDevice.waitForIdle()
         }.goToHomescreen(composeTestRule) {
             verifyHomeScreen()
