@@ -103,12 +103,6 @@ internal fun Homepage(
             }
             .verticalScroll(scrollState),
     ) {
-        HomepageHeader(
-            showPrivateBrowsingButton = state.showPrivateBrowsingButton,
-            browsingMode = state.browsingMode,
-            browsingModeChanged = interactor::onPrivateModeButtonClicked,
-        )
-
         if (state.firstFrameDrawn) {
             with(state) {
                 when (this) {

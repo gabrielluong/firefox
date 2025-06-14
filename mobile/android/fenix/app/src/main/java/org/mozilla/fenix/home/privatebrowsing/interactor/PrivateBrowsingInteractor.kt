@@ -15,9 +15,4 @@ interface PrivateBrowsingInteractor {
      * "Common myths about private browsing" link in private mode.
      */
     fun onLearnMoreClicked()
-
-    /**
-     * Called when a user clicks on the Private Mode button on the homescreen.
-     */
-    fun onPrivateModeButtonClicked(newMode: BrowsingMode)
 }

@@ -77,8 +77,6 @@ import org.mozilla.fenix.home.topsites.TopSitesTestTag.TOP_SITE_CARD_FAVICON
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_PRIVATE_BROWSING_LEARN_MORE_LINK
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_STORY
-import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_WORDMARK_LOGO
-import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_WORDMARK_TEXT
 import org.mozilla.fenix.home.ui.HomepageTestTag.PRIVATE_BROWSING_HOMEPAGE_BUTTON
 import org.mozilla.fenix.tabstray.TabsTrayTestTag
 
@@ -100,7 +98,7 @@ class HomeScreenRobot {
     }
 
     fun verifyHomeScreenAppBarItems() =
-        assertUIObjectExists(homeScreen(), privateBrowsingButton(), homepageWordmarkLogo(), homepageWordmarkText())
+        assertUIObjectExists(homeScreen(), privateBrowsingButton())
 
     fun verifyHomePrivateBrowsingButton() = assertUIObjectExists(privateBrowsingButton())
     fun verifyHomeMenuButton() = assertUIObjectExists(menuButton())
@@ -126,12 +124,6 @@ class HomeScreenRobot {
         Log.i(TAG, "verifyNoCollectionsText: Verified empty collections placeholder text is displayed")
     }
 
-    fun verifyHomeWordmark() {
-        Log.i(TAG, "verifyHomeWordmark: Trying to scroll 3x to the beginning of the home screen")
-        homeScreenList().scrollToBeginning(3)
-        Log.i(TAG, "verifyHomeWordmark: Scrolled 3x to the beginning of the home screen")
-        assertUIObjectExists(homepageWordmarkLogo(), homepageWordmarkText())
-    }
     fun verifyHomeComponent(composeTestRule: ComposeTestRule) {
         Log.i(TAG, "verifyHomeComponent: Trying to verify home screen view is visible")
         composeTestRule.onNodeWithTag(HOMEPAGE).assertIsDisplayed()
@@ -944,12 +936,6 @@ private fun privateBrowsingButton() =
 
 private fun isPrivateModeEnabled(): Boolean =
     itemWithResId(PRIVATE_BROWSING_HOMEPAGE_BUTTON).isChecked
-
-private fun homepageWordmarkLogo() =
-    itemWithResId(HOMEPAGE_WORDMARK_LOGO)
-
-private fun homepageWordmarkText() =
-    itemWithResId(HOMEPAGE_WORDMARK_TEXT)
 
 private fun navigationToolbar() =
     itemWithResId("$packageName:id/toolbar")

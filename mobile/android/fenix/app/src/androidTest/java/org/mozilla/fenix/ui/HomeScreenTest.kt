@@ -45,7 +45,6 @@ class HomeScreenTest : TestSetup() {
         }.openThreeDotMenu {
         }.openSettings {
         }.goBack {
-            verifyHomeWordmark()
             verifyHomePrivateBrowsingButton()
             verifyExistingTopSitesTabs(activityTestRule, "Wikipedia")
             verifyExistingTopSitesTabs(activityTestRule, "Google")

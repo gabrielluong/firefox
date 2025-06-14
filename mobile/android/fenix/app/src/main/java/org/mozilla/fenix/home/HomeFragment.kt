@@ -6,7 +6,6 @@ package org.mozilla.fenix.home
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.isVisible
@@ -39,7 +37,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -73,7 +70,6 @@ import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.BrowserDirection
 import org.mozilla.fenix.GleanMetrics.HomeScreen
-import org.mozilla.fenix.GleanMetrics.Homepage
 import org.mozilla.fenix.HomeActivity
 import org.mozilla.fenix.NavGraphDirections
 import org.mozilla.fenix.R
@@ -510,7 +506,6 @@ class HomeFragment : Fragment() {
             ),
             privateBrowsingController = DefaultPrivateBrowsingController(
                 navController = findNavController(),
-                browsingModeManager = browsingModeManager,
                 fenixBrowserUseCases = requireComponents.useCases.fenixBrowserUseCases,
                 settings = components.settings,
             ),
@@ -545,8 +540,6 @@ class HomeFragment : Fragment() {
 
             updateSessionControlView()
         }
-
-        disableAppBarDragging()
 
         FxNimbus.features.homescreen.recordExposure()
 
@@ -791,22 +784,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun disableAppBarDragging() {
-        if (binding.homeAppBar.layoutParams != null) {
-            val appBarLayoutParams = binding.homeAppBar.layoutParams as CoordinatorLayout.LayoutParams
-            val appBarBehavior = AppBarLayout.Behavior()
-            appBarBehavior.setDragCallback(
-                object : AppBarLayout.Behavior.DragCallback() {
-                    override fun canDrag(appBarLayout: AppBarLayout): Boolean {
-                        return false
-                    }
-                },
-            )
-            appBarLayoutParams.behavior = appBarBehavior
-        }
-        binding.homeAppBar.setExpanded(true)
-    }
-
     @Suppress("LongMethod", "ComplexMethod")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // DO NOT ADD ANYTHING ABOVE THIS getProfilerTime CALL!
@@ -851,15 +828,6 @@ class HomeFragment : Fragment() {
         toolbarView.build(requireComponents.core.store.state)
         if (requireContext().isTabStripEnabled()) {
             initTabStrip()
-        }
-
-        PrivateBrowsingButtonView(
-            button = binding.privateBrowsingButton,
-            showPrivateBrowsingButton = !requireContext().settings().enableHomepageAsNewTab,
-            browsingModeManager = browsingModeManager,
-        ) { newMode ->
-            sessionControlInteractor.onPrivateModeButtonClicked(newMode)
-            Homepage.privateModeIconTapped.record(NoExtras())
         }
 
         consumeFrom(requireComponents.core.store) {
@@ -952,7 +920,6 @@ class HomeFragment : Fragment() {
     private fun initComposeHomepage() {
         binding.sessionControlRecyclerView.isVisible = false
         binding.homepageView.isVisible = true
-        binding.homeAppBarContent.isVisible = false
 
         binding.homepageView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -1285,22 +1252,6 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        // Logo color should be updated in all cases.
-        applyWallpaperTextColor()
-    }
-
-    /**
-     * Apply a color better contrasting with the current wallpaper to the Fenix logo and private mode switcher.
-     */
-    @VisibleForTesting
-    internal fun applyWallpaperTextColor() {
-        val tintColor = when (val color = requireContext().settings().currentWallpaperTextColor.toInt()) {
-            0 -> null // a null ColorStateList will clear the current tint
-            else -> ColorStateList.valueOf(color)
-        }
-
-        binding.wordmarkText.imageTintList = tintColor
-        binding.privateBrowsingButton.buttonTintList = tintColor
     }
 
     private fun observeWallpaperUpdates() {

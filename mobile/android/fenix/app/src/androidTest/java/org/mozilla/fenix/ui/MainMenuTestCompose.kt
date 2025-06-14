@@ -596,8 +596,6 @@ class MainMenuTestCompose : TestSetup() {
         }.openThreeDotMenu(composeTestRule) {
         }.openSettings {
             verifySettingsToolbar()
-        }.goBack {
-            verifyHomeWordmark()
         }
     }
 
@@ -608,8 +606,6 @@ class MainMenuTestCompose : TestSetup() {
         }.openThreeDotMenu(composeTestRule) {
         }.clickCustomizeHomepageButton {
             verifyHomePageView()
-        }.goBackToHomeScreen {
-            verifyHomeWordmark()
         }
     }
 
@@ -680,7 +676,7 @@ class MainMenuTestCompose : TestSetup() {
             restartApp(composeTestRule.activityRule)
         }
         homeScreen {
-            verifyHomeWordmark()
+            // TODO: DO SOMETHING
         }
     }
 

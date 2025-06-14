@@ -35,7 +35,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import org.mozilla.fenix.R
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_WORDMARK_LOGO
 import org.mozilla.fenix.home.ui.HomepageTestTag.HOMEPAGE_WORDMARK_TEXT
 import org.mozilla.fenix.home.ui.HomepageTestTag.PRIVATE_BROWSING_HOMEPAGE_BUTTON
 import org.mozilla.fenix.theme.FirefoxTheme
@@ -57,35 +56,8 @@ fun HomepageHeader(
             .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 32.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        WordmarkLogo()
-
         WordmarkText()
-
-        if (showPrivateBrowsingButton) {
-            Spacer(modifier = Modifier.weight(1f))
-
-            PrivateBrowsingButton(
-                browsingMode = browsingMode,
-                browsingModeChanged = browsingModeChanged,
-            )
-        }
     }
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun WordmarkLogo() {
-    Image(
-        modifier = Modifier
-            .height(40.dp)
-            .semantics {
-                testTagsAsResourceId = true
-                testTag = HOMEPAGE_WORDMARK_LOGO
-            }
-            .padding(end = 10.dp),
-        painter = painterResource(getAttr(R.attr.fenixWordmarkLogo)),
-        contentDescription = null,
-    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
