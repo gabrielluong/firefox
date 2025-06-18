@@ -8,10 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -24,7 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import mozilla.components.compose.base.theme.AcornTheme
 
-private val ROUNDED_CORNER_SHAPE = RoundedCornerShape(8.dp)
+private val ROUNDED_CORNER_SHAPE = RoundedCornerShape(32.dp)
 
 /**
  * Sub-component of the [BrowserToolbar] responsible for displaying toolbar in the
@@ -44,12 +42,11 @@ fun HomepageDisplayToolbar(
 ) {
     Row(
         modifier = modifier
+            .padding(horizontal = 16.dp)
             .background(color = Color.Transparent)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(modifier = Modifier.width(8.dp))
-
         Row(
             modifier = Modifier
                 .padding(vertical = 8.dp)
@@ -70,14 +67,12 @@ fun HomepageDisplayToolbar(
                 color = AcornTheme.colors.textPrimary,
                 modifier = Modifier
                     .clickable { onUrlClicked() }
-                    .padding(8.dp)
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
                     .weight(1f),
                 maxLines = 1,
                 style = textStyle,
             )
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
     }
 }
 
