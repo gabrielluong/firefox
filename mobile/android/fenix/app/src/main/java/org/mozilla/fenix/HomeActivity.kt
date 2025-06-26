@@ -218,6 +218,13 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         )
     }
 
+    private val aboutHomeBinding by lazy {
+        AboutHomeBinding(
+            browserStore = components.core.store,
+            navController = navHost.navController,
+        )
+    }
+
     private val crashReporterBinding by lazy {
         CrashReporterBinding(
             context = this,
@@ -498,6 +505,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
             extensionsProcessDisabledForegroundController,
             extensionsProcessDisabledBackgroundController,
             serviceWorkerSupport,
+            aboutHomeBinding,
             crashReporterBinding,
             TopSitesRefresher(
                 settings = settings(),
