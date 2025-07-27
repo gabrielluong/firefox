@@ -140,6 +140,57 @@ sealed class Action {
         }
     }
 
+    data class MenuSelectorAction(
+        val icon: Icon,
+        val contentDescription: ContentDescription,
+        val menu: BrowserToolbarMenu,
+        val state: State = State.DEFAULT,
+        val onClick: BrowserToolbarEvent?,
+    ) : Action() {
+        /**
+         * The image to use as icon for this button.
+         */
+        sealed interface Icon {
+            /**
+             * The [Drawable] as icon for this button.
+             *
+             * @property drawable The [Drawable] to use as icon.
+             * @property shouldTint Whether or not to apply the application default tint to this icon.
+             */
+            data class DrawableIcon(
+                val drawable: Drawable,
+                val shouldTint: Boolean = true,
+            ) : Icon
+
+            /**
+             * The [DrawableRes] as icon for this button.
+             */
+            @JvmInline
+            value class DrawableResIcon(@param:DrawableRes val resourceId: Int) : Icon
+        }
+
+        /**
+         * The content description menu item.
+         */
+        sealed interface ContentDescription {
+            /**
+             * The [String] to use as content description of this button.
+             */
+            @JvmInline
+            value class StringContentDescription(val text: String) : ContentDescription
+
+            /**
+             * The [StringRes] to use as content description of this button.
+             */
+            @JvmInline
+            value class StringResContentDescription(@param:StringRes val resourceId: Int) : ContentDescription
+        }
+
+        enum class State {
+            DEFAULT, ACTIVE
+        }
+    }
+
     /**
      * An action button styled as a tab counter to be added to the toolbar.
      * This shows the provided [count] number inside of a squircle if lower than 100, otherwise it will

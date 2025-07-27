@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import mozilla.components.compose.base.theme.AcornTheme
 
@@ -24,12 +25,13 @@ import mozilla.components.compose.base.theme.AcornTheme
  */
 @Composable
 inline fun CustomPlacementPopup.CustomPlacementPopupVerticalContent(
+    minWidth: Dp = 250.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
         modifier = Modifier
             .background(AcornTheme.colors.layer2)
-            .requiredWidthIn(min = 250.dp)
+            .requiredWidthIn(min = minWidth)
             .width(IntrinsicSize.Max)
             .verticalScroll(rememberScrollState()),
     ) {

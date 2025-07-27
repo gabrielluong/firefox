@@ -21,6 +21,7 @@ import mozilla.components.compose.base.theme.AcornTheme
 import mozilla.components.compose.browser.toolbar.concept.Action
 import mozilla.components.compose.browser.toolbar.concept.Action.ActionButton
 import mozilla.components.compose.browser.toolbar.concept.Action.ActionButtonRes
+import mozilla.components.compose.browser.toolbar.concept.Action.MenuSelectorAction
 import mozilla.components.compose.browser.toolbar.concept.Action.SearchSelectorAction
 import mozilla.components.compose.browser.toolbar.concept.Action.SearchSelectorAction.ContentDescription.StringContentDescription
 import mozilla.components.compose.browser.toolbar.concept.Action.SearchSelectorAction.ContentDescription.StringResContentDescription
@@ -28,6 +29,7 @@ import mozilla.components.compose.browser.toolbar.concept.Action.SearchSelectorA
 import mozilla.components.compose.browser.toolbar.concept.Action.SearchSelectorAction.Icon.DrawableResIcon
 import mozilla.components.compose.browser.toolbar.concept.Action.TabCounterAction
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarInteraction.BrowserToolbarEvent
+import mozilla.components.compose.browser.toolbar.ui.MenuSelector
 import mozilla.components.compose.browser.toolbar.ui.SearchSelector
 import mozilla.components.compose.browser.toolbar.ui.TabCounter
 import mozilla.components.compose.browser.toolbar.ui.ActionButton as ActionButtonComposable
@@ -94,6 +96,18 @@ fun ActionContainer(
                     )
                 }
 
+                is MenuSelectorAction -> {
+                    action.iconDrawable()?.let {
+                        MenuSelector(
+                            icon = it,
+                            contentDescription = action.contentDescription(),
+                            state = action.state,
+                            menu = action.menu,
+                            onInteraction = { onInteraction(it) },
+                        )
+                    }
+                }
+
                 is TabCounterAction -> {
                     TabCounter(
                         count = action.count,
@@ -153,6 +167,28 @@ private fun SearchSelectorAction.iconDrawable(): Drawable? {
     return drawable
 }
 
+@Composable
+@ReadOnlyComposable
+private fun MenuSelectorAction.contentDescription() = when (contentDescription) {
+    is MenuSelectorAction.ContentDescription.StringContentDescription -> contentDescription.text
+    is MenuSelectorAction.ContentDescription.StringResContentDescription -> stringResource(contentDescription.resourceId)
+}
+
+@Composable
+private fun MenuSelectorAction.iconDrawable(): Drawable? {
+    val context = LocalContext.current
+    val tint = AcornTheme.colors.iconPrimary
+
+    val drawable = remember(this, context) {
+        when (icon) {
+            is MenuSelectorAction.Icon.DrawableIcon -> icon.drawable
+            is MenuSelectorAction.Icon.DrawableResIcon -> AppCompatResources.getDrawable(context, icon.resourceId)
+                ?.apply { setTint(tint.toArgb()) }
+        }
+    }
+    return drawable
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun ActionContainerPreview() {
@@ -162,6 +198,12 @@ private fun ActionContainerPreview() {
                 SearchSelectorAction(
                     icon = DrawableResIcon(iconsR.drawable.mozac_ic_search_24),
                     contentDescription = StringContentDescription("Change search engine for this search"),
+                    menu = { emptyList() },
+                    onClick = null,
+                ),
+                MenuSelectorAction(
+                    icon = MenuSelectorAction.Icon.DrawableResIcon(iconsR.drawable.mozac_ic_translate_24),
+                    contentDescription = MenuSelectorAction.ContentDescription.StringContentDescription(text = ""),
                     menu = { emptyList() },
                     onClick = null,
                 ),

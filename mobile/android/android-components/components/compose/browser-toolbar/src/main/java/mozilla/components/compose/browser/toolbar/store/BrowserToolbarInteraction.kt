@@ -71,7 +71,9 @@ sealed class BrowserToolbarMenuItem {
     data class BrowserToolbarMenuButton(
         val icon: Icon?,
         val text: Text,
+        val badgeText: Text? = null,
         val contentDescription: ContentDescription,
+        val state: State = State.DEFAULT,
         val onClick: BrowserToolbarEvent?,
     ) : BrowserToolbarMenuItem() {
 
@@ -129,6 +131,68 @@ sealed class BrowserToolbarMenuItem {
              */
             @JvmInline
             value class StringResContentDescription(@param:StringRes val resourceId: Int) : ContentDescription
+        }
+
+        enum class State {
+            DEFAULT, ACTIVE,
+        }
+    }
+
+    /**
+     * Icon button shown in a [BrowserToolbarMenu].
+     *
+     * @property icon [Drawable] icon for the menu item.
+     * @property contentDescription Content description for this item.
+     * @property onClick Optional [BrowserToolbarEvent] to be dispatched when this item is clicked.
+     */
+    data class BrowserToolbarMenuIconButton(
+        val icon: Icon,
+        val contentDescription: ContentDescription,
+        val state: State = State.DEFAULT,
+        val onClick: BrowserToolbarEvent?,
+    ) : BrowserToolbarMenuItem() {
+
+        /**
+         * The image to use as icon for this menu item.
+         */
+        sealed interface Icon {
+            /**
+             *  The [Drawable] as icon for this menu item.
+             *
+             *  @property drawable The [Drawable] to use as icon.
+             *  @property shouldTint Whether or not to apply the application default tint to this icon.
+             */
+            data class DrawableIcon(
+                val drawable: Drawable,
+                val shouldTint: Boolean = true,
+            ) : Icon
+
+            /**
+             * The [DrawableRes] as icon for this menu item.
+             */
+            @JvmInline
+            value class DrawableResIcon(@param:DrawableRes val resourceId: Int) : Icon
+        }
+
+        /**
+         * The content description menu item.
+         */
+        sealed interface ContentDescription {
+            /**
+             * The [String] to use as content description of this menu item.
+             */
+            @JvmInline
+            value class StringContentDescription(val text: String) : ContentDescription
+
+            /**
+             * The [StringRes] to use as content description of this menu item.
+             */
+            @JvmInline
+            value class StringResContentDescription(@param:StringRes val resourceId: Int) : ContentDescription
+        }
+
+        enum class State {
+            DEFAULT, ACTIVE,
         }
     }
 

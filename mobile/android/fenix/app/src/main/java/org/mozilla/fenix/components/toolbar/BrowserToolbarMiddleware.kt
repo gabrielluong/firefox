@@ -24,6 +24,7 @@ import mozilla.components.browser.state.state.content.ShareResourceState
 import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.compose.browser.toolbar.concept.Action
+import mozilla.components.compose.browser.toolbar.concept.Action.MenuSelectorAction
 import mozilla.components.compose.browser.toolbar.concept.Action.ActionButton
 import mozilla.components.compose.browser.toolbar.concept.Action.ActionButtonRes
 import mozilla.components.compose.browser.toolbar.concept.Action.TabCounterAction
@@ -127,6 +128,7 @@ import org.mozilla.fenix.tabstray.TabManagementFeatureHelper
 import org.mozilla.fenix.tabstray.ext.isActiveDownload
 import org.mozilla.fenix.utils.Settings
 import org.mozilla.fenix.utils.lastSavedFolderCache
+import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuIconButton
 import mozilla.components.lib.state.Action as MVIAction
 import mozilla.components.ui.icons.R as iconsR
 
@@ -172,6 +174,11 @@ internal sealed class PageEndActionsInteractions : BrowserToolbarEvent {
     ) : PageEndActionsInteractions()
 
     data object TranslateClicked : PageEndActionsInteractions()
+}
+
+@VisibleForTesting
+internal sealed class MenuSelectorEvents : BrowserToolbarEvent {
+    data object MenuSelectorClicked: MenuSelectorEvents()
 }
 
 /**
@@ -686,15 +693,21 @@ class BrowserToolbarMiddleware(
     private fun buildEndPageActions(): List<Action> {
         val isLargeWindowOrLandscape = environment?.context?.isLargeWindow() == true ||
             appStore.state.orientation == OrientationMode.Landscape
+        val menuSelector = if (settings.shouldUseExpandedToolbar || isLargeWindowOrLandscape) {
+            null
+        } else {
+            buildMenuSelector()
+        }
 
-        return listOf(
+        return listOfNotNull(menuSelector) + listOf(
             ToolbarActionConfig(ToolbarAction.ReaderMode) {
-                browserScreenStore.state.readerModeStatus.isAvailable
+                browserScreenStore.state.readerModeStatus.isAvailable && menuSelector == null
             },
             ToolbarActionConfig(ToolbarAction.Translate) {
                 browserScreenStore.state.pageTranslationStatus.isTranslationPossible &&
                     (settings.shouldUseExpandedToolbar || isLargeWindowOrLandscape) &&
-                    FxNimbus.features.translations.value().mainFlowToolbarEnabled
+                    FxNimbus.features.translations.value().mainFlowToolbarEnabled &&
+                    menuSelector == null
             },
             ToolbarActionConfig(ToolbarAction.Share) {
                 isLargeWindowOrLandscape && !settings.isTabStripEnabled && !settings.shouldUseExpandedToolbar
@@ -704,6 +717,88 @@ class BrowserToolbarMiddleware(
         }.map { config ->
             buildAction(config.action)
         }
+    }
+
+    private fun buildMenuSelector(): MenuSelectorAction? {
+        val state = browserScreenStore.state
+        val isTranslationAvailable = state.pageTranslationStatus.isTranslationPossible ||
+            state.pageTranslationStatus.isTranslated
+        val isReaderModeAvailable = state.readerModeStatus.isAvailable
+
+        if (!isTranslationAvailable || !isReaderModeAvailable) {
+            return null
+        }
+
+        val isTranslated = state.pageTranslationStatus.isTranslated
+
+        val menuItems = buildList<BrowserToolbarMenuIconButton> {
+            val translateResText = if (isTranslated) {
+                R.string.browser_menu_translated
+            } else {
+                R.string.browser_toolbar_translate
+            }
+
+            add(
+                BrowserToolbarMenuIconButton(
+                    icon = BrowserToolbarMenuIconButton.Icon.DrawableResIcon(
+                        resourceId = if (isTranslated) {
+                            R.drawable.mozac_ic_translate_active_24
+                        } else {
+                            R.drawable.mozac_ic_translate_24
+                        },
+                    ),
+                    contentDescription = BrowserToolbarMenuIconButton.ContentDescription.StringResContentDescription(translateResText),
+                    state = if (isTranslated) {
+                        BrowserToolbarMenuIconButton.State.ACTIVE
+                    } else {
+                        BrowserToolbarMenuIconButton.State.DEFAULT
+                    },
+                    onClick = TranslateClicked,
+                ),
+            )
+
+            val isReaderModeActive = state.readerModeStatus.isActive
+            val readerModeResText = if (isReaderModeActive) {
+                R.string.browser_menu_read_close
+            } else {
+                R.string.browser_menu_read
+            }
+
+            add(
+                BrowserToolbarMenuIconButton(
+                    icon = BrowserToolbarMenuIconButton.Icon.DrawableResIcon(R.drawable.mozac_ic_reader_view_24),
+                    contentDescription = BrowserToolbarMenuIconButton.ContentDescription.StringResContentDescription(readerModeResText),
+                    state = if (isReaderModeActive) {
+                        BrowserToolbarMenuIconButton.State.ACTIVE
+                    } else {
+                        BrowserToolbarMenuIconButton.State.DEFAULT
+                    },
+                    onClick = ReaderModeClicked(isActive = isReaderModeActive),
+                ),
+            )
+
+            add(
+                BrowserToolbarMenuIconButton(
+                    icon = BrowserToolbarMenuIconButton.Icon.DrawableResIcon(R.drawable.mozac_ic_share_android_24),
+                    contentDescription = BrowserToolbarMenuIconButton.ContentDescription.StringResContentDescription(R.string.browser_menu_share),
+                    onClick = ShareClicked,
+                ),
+            )
+        }
+
+        return MenuSelectorAction(
+            icon = MenuSelectorAction.Icon.DrawableResIcon(resourceId =
+                R.drawable.mozac_ic_translate_24
+            ),
+            contentDescription = MenuSelectorAction.ContentDescription.StringContentDescription(""),
+            menu = { menuItems },
+            state = if (isTranslated) {
+                MenuSelectorAction.State.ACTIVE
+            } else {
+                MenuSelectorAction.State.DEFAULT
+            },
+            onClick = MenuSelectorEvents.MenuSelectorClicked,
+        )
     }
 
     private fun buildEndBrowserActions(): List<Action> {
