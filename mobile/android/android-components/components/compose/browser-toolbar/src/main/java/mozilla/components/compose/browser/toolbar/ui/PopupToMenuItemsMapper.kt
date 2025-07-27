@@ -36,6 +36,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import mozilla.components.compose.base.Badge
+import mozilla.components.compose.base.BadgeState
 import mozilla.components.compose.base.Divider
 import mozilla.components.compose.base.modifier.thenConditional
 import mozilla.components.compose.base.theme.AcornTheme
@@ -52,6 +54,7 @@ import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.B
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.Text.StringResText
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.Text.StringText
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuDivider
+import mozilla.components.support.base.log.logger.Logger
 
 @Stable
 internal fun BrowserToolbarInteraction.toMenuItems(): List<BrowserToolbarMenuItem> = when (this) {
@@ -104,7 +107,11 @@ internal fun menuItemComposable(
                                 modifier = Modifier.size(24.dp),
                                 contentScale = ContentScale.Crop,
                                 colorFilter = when (source.icon.shouldTint) {
-                                    true -> ColorFilter.tint(AcornTheme.colors.iconPrimary)
+                                    true -> if (source.state == BrowserToolbarMenuButton.State.ACTIVE) {
+                                        ColorFilter.tint(AcornTheme.colors.iconAccentViolet)
+                                    } else {
+                                        ColorFilter.tint(AcornTheme.colors.iconPrimary)
+                                    }
                                     else -> null
                                 },
                             )
@@ -114,7 +121,11 @@ internal fun menuItemComposable(
                                 painter = painterResource(source.icon.resourceId),
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
-                                tint = AcornTheme.colors.iconPrimary,
+                                tint = if (source.state == BrowserToolbarMenuButton.State.ACTIVE) {
+                                    AcornTheme.colors.iconAccentViolet
+                                } else {
+                                    AcornTheme.colors.iconPrimary
+                                },
                             )
                         }
                         null -> {}
@@ -126,13 +137,29 @@ internal fun menuItemComposable(
 
                     Text(
                         text = source.text(),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .wrapContentSize(Alignment.CenterStart),
-                        color = AcornTheme.colors.textPrimary,
+                        modifier = Modifier.wrapContentSize(Alignment.CenterStart),
+                        color = if (source.state == BrowserToolbarMenuButton.State.ACTIVE) {
+                            AcornTheme.colors.textAccent
+                        } else {
+                            AcornTheme.colors.textPrimary
+                        },
                         maxLines = 1,
                         style = AcornTheme.typography.subtitle1,
                     )
+
+                    if (source.badgeText != null) {
+                        Spacer(modifier = Modifier.width(20.dp))
+
+                        Badge(
+                            text = source.badgeText(),
+                            state = if (source.state == BrowserToolbarMenuButton.State.ACTIVE) {
+                                BadgeState.ACTIVE
+                            } else {
+                                BadgeState.DEFAULT
+                            },
+                            backgroundColor = AcornTheme.colors.badgeActive,
+                        )
+                    }
                 }
             }
         }
@@ -152,6 +179,14 @@ internal fun menuItemComposable(
 private fun BrowserToolbarMenuButton.text() = when (text) {
     is StringText -> text.text
     is StringResText -> stringResource(text.resourceId)
+}
+
+@Composable
+@ReadOnlyComposable
+private fun BrowserToolbarMenuButton.badgeText() = when (badgeText) {
+    is StringText -> badgeText.text
+    is StringResText -> stringResource(badgeText.resourceId)
+    null -> ""
 }
 
 @Composable

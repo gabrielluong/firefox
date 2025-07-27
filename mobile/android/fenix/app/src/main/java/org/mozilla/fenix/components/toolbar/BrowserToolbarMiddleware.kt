@@ -24,6 +24,7 @@ import mozilla.components.browser.state.state.content.ShareResourceState
 import mozilla.components.browser.state.state.selectedOrDefaultSearchEngine
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.compose.browser.toolbar.concept.Action
+import mozilla.components.compose.browser.toolbar.concept.Action.MenuSelectorAction
 import mozilla.components.compose.browser.toolbar.concept.Action.ActionButton
 import mozilla.components.compose.browser.toolbar.concept.Action.ActionButtonRes
 import mozilla.components.compose.browser.toolbar.concept.Action.TabCounterAction
@@ -41,7 +42,9 @@ import mozilla.components.compose.browser.toolbar.store.BrowserDisplayToolbarAct
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarAction
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarAction.Init
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarInteraction.BrowserToolbarEvent
+import mozilla.components.compose.browser.toolbar.store.BrowserToolbarInteraction.BrowserToolbarMenu
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarInteraction.CombinedEventAndMenu
+import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.ContentDescription.StringResContentDescription
 import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.Icon.DrawableResIcon
@@ -56,6 +59,7 @@ import mozilla.components.concept.engine.cookiehandling.CookieBannersStorage
 import mozilla.components.concept.engine.permission.SitePermissions
 import mozilla.components.concept.engine.permission.SitePermissionsStorage
 import mozilla.components.concept.engine.prompt.ShareData
+import mozilla.components.concept.engine.translate.TranslationSupport
 import mozilla.components.concept.engine.utils.ABOUT_HOME_URL
 import mozilla.components.concept.storage.BookmarksStorage
 import mozilla.components.feature.session.SessionUseCases
@@ -127,6 +131,9 @@ import org.mozilla.fenix.tabstray.TabManagementFeatureHelper
 import org.mozilla.fenix.tabstray.ext.isActiveDownload
 import org.mozilla.fenix.utils.Settings
 import org.mozilla.fenix.utils.lastSavedFolderCache
+import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.ContentDescription.StringResContentDescription as MenuItemDescriptionRes
+import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.Icon.DrawableResIcon as MenuItemIconRes
+import mozilla.components.compose.browser.toolbar.store.BrowserToolbarMenuItem.BrowserToolbarMenuButton.Text.StringResText as MenuItemStringResText
 import mozilla.components.lib.state.Action as MVIAction
 import mozilla.components.ui.icons.R as iconsR
 
@@ -172,6 +179,11 @@ internal sealed class PageEndActionsInteractions : BrowserToolbarEvent {
     ) : PageEndActionsInteractions()
 
     data object TranslateClicked : PageEndActionsInteractions()
+}
+
+@VisibleForTesting
+internal sealed class MenuSelectorEvents : BrowserToolbarEvent {
+    data object MenuSelectorClicked: MenuSelectorEvents()
 }
 
 /**
@@ -686,15 +698,21 @@ class BrowserToolbarMiddleware(
     private fun buildEndPageActions(): List<Action> {
         val isLargeWindowOrLandscape = environment?.context?.isLargeWindow() == true ||
             appStore.state.orientation == OrientationMode.Landscape
+        val menuSelector = if (settings.shouldUseExpandedToolbar || isLargeWindowOrLandscape) {
+            null
+        } else {
+            buildMenuSelector()
+        }
 
-        return listOf(
+        return listOfNotNull(menuSelector) + listOf(
             ToolbarActionConfig(ToolbarAction.ReaderMode) {
-                browserScreenStore.state.readerModeStatus.isAvailable
+                browserScreenStore.state.readerModeStatus.isAvailable && menuSelector == null
             },
             ToolbarActionConfig(ToolbarAction.Translate) {
                 browserScreenStore.state.pageTranslationStatus.isTranslationPossible &&
                     (settings.shouldUseExpandedToolbar || isLargeWindowOrLandscape) &&
-                    FxNimbus.features.translations.value().mainFlowToolbarEnabled
+                    FxNimbus.features.translations.value().mainFlowToolbarEnabled &&
+                    menuSelector == null
             },
             ToolbarActionConfig(ToolbarAction.Share) {
                 isLargeWindowOrLandscape && !settings.isTabStripEnabled && !settings.shouldUseExpandedToolbar
@@ -704,6 +722,98 @@ class BrowserToolbarMiddleware(
         }.map { config ->
             buildAction(config.action)
         }
+    }
+
+    private fun buildMenuSelector(): MenuSelectorAction? {
+        val state = browserScreenStore.state
+        val isTranslationAvailable = state.pageTranslationStatus.isTranslationPossible ||
+            state.pageTranslationStatus.isTranslated
+        val isReaderModeAvailable = state.readerModeStatus.isAvailable
+
+        if (!isTranslationAvailable || !isReaderModeAvailable) {
+            return null
+        }
+
+        val isTranslated = state.pageTranslationStatus.isTranslated
+
+        val menuItems = buildList<BrowserToolbarMenuItem> {
+            val translateResText = if (isTranslated) {
+                R.string.browser_menu_translated
+            } else {
+                R.string.browser_toolbar_translate
+            }
+            val selectedLanguage = state.pageTranslationStatus.toSelectedLanguage
+            val badgeText = if (isTranslated && selectedLanguage != null) {
+                selectedLanguage.localizedDisplayName?.let { BrowserToolbarMenuButton.Text.StringText(it) }
+            } else {
+                null
+            }
+
+            add(
+                BrowserToolbarMenuButton(
+                    icon = MenuItemIconRes(
+                        resourceId = if (isTranslated) {
+                            R.drawable.mozac_ic_translate_active_24
+                        } else {
+                            R.drawable.mozac_ic_translate_24
+                        },
+                    ),
+                    text = MenuItemStringResText(translateResText),
+                    badgeText = badgeText,
+                    contentDescription = MenuItemDescriptionRes(translateResText),
+                    state = if (isTranslated) {
+                        BrowserToolbarMenuButton.State.ACTIVE
+                    } else {
+                        BrowserToolbarMenuButton.State.DEFAULT
+                    },
+                    onClick = TranslateClicked,
+                ),
+            )
+
+            val isReaderModeActive = state.readerModeStatus.isActive
+            val readerModeResText = if (isReaderModeActive) {
+                R.string.browser_menu_read_close
+            } else {
+                R.string.browser_menu_read
+            }
+
+            add(
+                BrowserToolbarMenuButton(
+                    icon = MenuItemIconRes(R.drawable.mozac_ic_reader_view_24),
+                    text = MenuItemStringResText(readerModeResText),
+                    contentDescription = MenuItemDescriptionRes(readerModeResText),
+                    state = if (isReaderModeActive) {
+                        BrowserToolbarMenuButton.State.ACTIVE
+                    } else {
+                        BrowserToolbarMenuButton.State.DEFAULT
+                    },
+                    onClick = ReaderModeClicked(isActive = isReaderModeActive),
+                ),
+            )
+
+            add(
+                BrowserToolbarMenuButton(
+                    icon = MenuItemIconRes(R.drawable.mozac_ic_share_android_24),
+                    text = MenuItemStringResText(R.string.browser_menu_share),
+                    contentDescription = MenuItemDescriptionRes(R.string.browser_menu_share),
+                    onClick = ShareClicked,
+                ),
+            )
+        }
+
+        return MenuSelectorAction(
+            icon = MenuSelectorAction.Icon.DrawableResIcon(resourceId =
+                R.drawable.mozac_ic_translate_24
+            ),
+            contentDescription = MenuSelectorAction.ContentDescription.StringContentDescription(""),
+            menu = { menuItems },
+            state = if (isTranslated) {
+                MenuSelectorAction.State.ACTIVE
+            } else {
+                MenuSelectorAction.State.DEFAULT
+            },
+            onClick = MenuSelectorEvents.MenuSelectorClicked,
+        )
     }
 
     private fun buildEndBrowserActions(): List<Action> {

@@ -71,7 +71,9 @@ sealed class BrowserToolbarMenuItem {
     data class BrowserToolbarMenuButton(
         val icon: Icon?,
         val text: Text,
+        val badgeText: Text? = null,
         val contentDescription: ContentDescription,
+        val state: State = State.DEFAULT,
         val onClick: BrowserToolbarEvent?,
     ) : BrowserToolbarMenuItem() {
 
@@ -129,6 +131,10 @@ sealed class BrowserToolbarMenuItem {
              */
             @JvmInline
             value class StringResContentDescription(@param:StringRes val resourceId: Int) : ContentDescription
+        }
+
+        enum class State {
+            DEFAULT, ACTIVE,
         }
     }
 
