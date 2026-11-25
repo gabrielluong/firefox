@@ -2,6 +2,10 @@
 
 Feature component for working with contextual identities also known as containers.
 
+The containers are stored with the application-services `fxcontainers` component, which Firefox Desktop uses as well.
+`DefaultContainerRepository` seeds the default Personal, Work, Banking and Shopping containers on first use, and
+`ContainerMiddleware` mirrors the containers into `BrowserState.containers`.
+
 ## Usage
 
 ### Setting up the dependency
