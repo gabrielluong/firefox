@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<resources>
+    <!-- Name of the default container (a set of tabs that keep their cookies and site data apart from other tabs) meant for personal browsing. -->
+    <string name="mozac_feature_containers_label_personal">Personal</string>
+    <!-- Name of the default container (a set of tabs that keep their cookies and site data apart from other tabs) meant for work-related browsing. -->
+    <string name="mozac_feature_containers_label_work">Work</string>
+    <!-- Name of the default container (a set of tabs that keep their cookies and site data apart from other tabs) meant for online banking. -->
+    <string name="mozac_feature_containers_label_banking">Banking</string>
+    <!-- Name of the default container (a set of tabs that keep their cookies and site data apart from other tabs) meant for online shopping. -->
+    <string name="mozac_feature_containers_label_shopping">Shopping</string>
+</resources>

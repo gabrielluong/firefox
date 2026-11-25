@@ -18,6 +18,7 @@ permalink: /changelog/
   * ⚠️ **Breaking change**: Replaced `ContainerAction.AddContainerAction`, `AddContainersAction` and `RemoveContainerAction` with `ContainerAction.UpdateContainersAction`, which replaces `BrowserState.containers`.
 * **feature-containers**
   * ⚠️ **Breaking change**: The containers are stored with the application-services `fxcontainers` component shared with Firefox Desktop, in place of a Room database. Added `ContainerRepository` and `DefaultContainerRepository`, which seed the default Personal, Work, Banking and Shopping containers. `ContainerMiddleware` takes a `ContainerRepository` and mirrors it into `BrowserState.containers`. Containers stored in the previous Room database are not migrated. Like Firefox Desktop, stored containers that cannot be parsed are replaced with the defaults, and `DefaultContainerRepository` takes an `onContainersReset` callback for closing the tabs and clearing the data of the replaced containers.
+  * 🆕 Added `ContainerState.getLabel`, which returns the localized label of a container.
 * **feature-toolbar**
   * ⚠️ **Breaking change**: `ContainerToolbarFeature` requires a `containerLabel` callback for the content description of the container page action, and updates the page action when the selected tab's container changes.
 * **concept-engine**
