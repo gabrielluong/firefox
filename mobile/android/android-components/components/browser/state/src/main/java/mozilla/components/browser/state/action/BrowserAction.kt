@@ -1345,14 +1345,8 @@ sealed class CopyInternetResourceAction : BrowserAction() {
 
 /** [BrowserAction] implementations related to updating [BrowserState.containers] */
 sealed class ContainerAction : BrowserAction() {
-    /** Updates [BrowserState.containers] to register the given added [container]. */
-    data class AddContainerAction(val container: ContainerState) : ContainerAction()
-
-    /** Updates [BrowserState.containers] to register the given list of [containers]. */
-    data class AddContainersAction(val containers: List<ContainerState>) : ContainerAction()
-
-    /** Removes all state of the removed container from [BrowserState.containers]. */
-    data class RemoveContainerAction(val contextId: String) : ContainerAction()
+    /** Replaces [BrowserState.containers] with the given ordered list of [containers]. */
+    data class UpdateContainersAction(val containers: List<ContainerState>) : ContainerAction()
 }
 
 /** [BrowserAction] implementations related to updating [TabSessionState.historyMetadata]. */

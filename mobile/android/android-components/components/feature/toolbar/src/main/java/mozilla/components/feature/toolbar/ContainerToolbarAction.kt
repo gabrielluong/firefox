@@ -25,11 +25,13 @@ import mozilla.components.ui.icons.R as iconsR
  * An action button that represents a container to be added to the toolbar.
  *
  * @param container Associated [ContainerState]'s icon and color to render in the toolbar.
+ * @param contentDescription An optional localized content description for the action.
  * @param padding A optional custom padding.
  * @param listener A optional callback that will be invoked whenever the button is pressed.
  */
 class ContainerToolbarAction(
     internal val container: ContainerState,
+    internal val contentDescription: String? = null,
     internal val padding: Padding? = null,
     private var listener: (() -> Unit)? = null,
 ) : Action {
@@ -49,7 +51,7 @@ class ContainerToolbarAction(
 
     override fun bind(view: View) {
         val imageView = view.findViewById<ImageView>(R.id.container_action_image)
-        imageView.contentDescription = container.name
+        imageView.contentDescription = contentDescription
         imageView.setImageDrawable(getIcon(view.context, container))
     }
 
@@ -70,20 +72,22 @@ class ContainerToolbarAction(
             Icon.TREE -> loadAndTintDrawable(context, R.drawable.mozac_feature_toolbar_ic_tree, tint)
             Icon.CHILL -> loadAndTintDrawable(context, R.drawable.mozac_feature_toolbar_ic_chill, tint)
             Icon.FENCE -> loadAndTintDrawable(context, R.drawable.mozac_feature_toolbar_ic_fence, tint)
+            Icon.ROBOT -> loadAndTintDrawable(context, R.drawable.mozac_feature_toolbar_ic_robot, tint)
         }
     }
 
     private fun getTint(context: Context, color: Color): Int {
         return when (color) {
-            Color.BLUE -> getColor(context, R.color.mozac_feature_toolbar_container_blue)
-            Color.TURQUOISE -> getColor(context, R.color.mozac_feature_toolbar_container_turquoise)
-            Color.GREEN -> getColor(context, R.color.mozac_feature_toolbar_container_green)
+            Color.GRAY -> getColor(context, R.color.mozac_feature_toolbar_container_gray)
             Color.YELLOW -> getColor(context, R.color.mozac_feature_toolbar_container_yellow)
             Color.ORANGE -> getColor(context, R.color.mozac_feature_toolbar_container_orange)
             Color.RED -> getColor(context, R.color.mozac_feature_toolbar_container_red)
             Color.PINK -> getColor(context, R.color.mozac_feature_toolbar_container_pink)
             Color.PURPLE -> getColor(context, R.color.mozac_feature_toolbar_container_purple)
-            Color.TOOLBAR -> getColor(context, R.color.mozac_feature_toolbar_container_toolbar)
+            Color.VIOLET -> getColor(context, R.color.mozac_feature_toolbar_container_violet)
+            Color.BLUE -> getColor(context, R.color.mozac_feature_toolbar_container_blue)
+            Color.CYAN -> getColor(context, R.color.mozac_feature_toolbar_container_cyan)
+            Color.GREEN -> getColor(context, R.color.mozac_feature_toolbar_container_green)
         }
     }
 }

@@ -26,7 +26,7 @@ class ContainerToolbarFeatureTest {
     private val container =
         ContainerState(
             contextId = "1",
-            name = "Personal",
+            label = ContainerState.Label.Personal,
             color = ContainerState.Color.GREEN,
             icon = ContainerState.Icon.FINGERPRINT,
         )
@@ -83,7 +83,7 @@ class ContainerToolbarFeatureTest {
         toolbar: Toolbar = mock(),
         store: BrowserStore = BrowserStore(),
     ): ContainerToolbarFeature {
-        val containerToolbarFeature = spy(ContainerToolbarFeature(toolbar, store, testDispatcher))
+        val containerToolbarFeature = spy(ContainerToolbarFeature(toolbar, store, testDispatcher) { "Personal" })
         containerToolbarFeature.start()
         testDispatcher.scheduler.advanceUntilIdle()
 

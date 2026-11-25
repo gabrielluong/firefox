@@ -10,19 +10,8 @@ import mozilla.components.browser.state.state.BrowserState
 internal object ContainerReducer {
     fun reduce(state: BrowserState, action: ContainerAction): BrowserState {
         return when (action) {
-            is ContainerAction.AddContainerAction -> {
-                val existingContainer = state.containers[action.container.contextId]
-                if (existingContainer == null) {
-                    state.copy(containers = state.containers + (action.container.contextId to action.container))
-                } else {
-                    state
-                }
-            }
-            is ContainerAction.AddContainersAction -> {
-                state.copy(containers = state.containers + (action.containers.map { it.contextId to it }.toMap()))
-            }
-            is ContainerAction.RemoveContainerAction -> {
-                state.copy(containers = state.containers - action.contextId)
+            is ContainerAction.UpdateContainersAction -> {
+                state.copy(containers = action.containers.associateBy { it.contextId })
             }
         }
     }

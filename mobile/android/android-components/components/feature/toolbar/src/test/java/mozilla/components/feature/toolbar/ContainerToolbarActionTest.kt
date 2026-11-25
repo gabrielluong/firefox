@@ -28,7 +28,7 @@ class ContainerToolbarActionTest {
     private val container =
         ContainerState(
             contextId = "contextId",
-            name = "Personal",
+            label = ContainerState.Label.Custom("Travel"),
             color = ContainerState.Color.GREEN,
             icon = ContainerState.Icon.CART,
         )
@@ -41,10 +41,10 @@ class ContainerToolbarActionTest {
         whenever(view.findViewById<ImageView>(R.id.container_action_image)).thenReturn(imageView)
         whenever(view.context).thenReturn(testContext)
 
-        val action = spy(ContainerToolbarAction(container))
+        val action = spy(ContainerToolbarAction(container, contentDescription = "Travel"))
         action.bind(view)
 
-        verify(imageView).contentDescription = container.name
+        verify(imageView).contentDescription = "Travel"
         verify(imageView).setImageDrawable(any())
     }
 

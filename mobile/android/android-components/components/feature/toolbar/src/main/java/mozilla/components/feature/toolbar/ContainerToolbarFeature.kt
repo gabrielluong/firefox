@@ -12,6 +12,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.state.BrowserState
+import mozilla.components.browser.state.state.ContainerState
 import mozilla.components.browser.state.state.SessionState
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.toolbar.Toolbar
@@ -21,24 +22,30 @@ import mozilla.components.support.base.feature.LifecycleAwareFeature
 /**
  * Container toolbar implementation that updates the toolbar with the container page action whenever the selected tab
  * changes.
+ *
+ * @param toolbar The [Toolbar] to render the container page action in.
+ * @param store The [BrowserStore] holding the selected tab and the known containers.
+ * @param mainDispatcher The [CoroutineDispatcher] used to observe the [store].
+ * @param containerLabel Returns the localized label of a container, used as the page action's content description.
  */
 class ContainerToolbarFeature(
     private val toolbar: Toolbar,
     private var store: BrowserStore,
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    private val containerLabel: (ContainerState) -> String,
 ) : LifecycleAwareFeature {
     private var containerPageAction: ContainerToolbarAction? = null
     private var scope: CoroutineScope? = null
 
     init {
-        renderContainerAction(store.state)
+        renderContainerAction(store.state, store.state.selectedTab)
     }
 
     override fun start() {
         scope =
             store.flowScoped(dispatcher = mainDispatcher) { flow ->
                 flow
-                    .distinctUntilChangedBy { it.selectedTab }
+                    .distinctUntilChangedBy { it.selectedTab to it.containers[it.selectedTab?.contextId] }
                     .collect { state ->
                         renderContainerAction(state, state.selectedTab)
                     }
@@ -75,7 +82,7 @@ class ContainerToolbarFeature(
         }
 
         containerPageAction =
-            ContainerToolbarAction(containerState).also { action ->
+            ContainerToolbarAction(containerState, contentDescription = containerLabel(containerState)).also { action ->
                 toolbar.addPageAction(action)
                 toolbar.invalidateActions()
             }

@@ -5,59 +5,10 @@
 plugins {
     id 'com.android.library'
     alias(libs.plugins.dependency.analysis)
-    alias(libs.plugins.ksp)
 }
 
 android {
-    defaultConfig {
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas".toString())
-            arg("room.generateKotlin", "true")
-        }
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.incremental": "true"]
-            }
-        }
-    }
-
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
-    }
-
     namespace = 'mozilla.components.feature.containers'
-}
-
-dependencies {
-    implementation project(':components:browser-state')
-    implementation project(':components:support-base')
-    implementation project(':components:support-ktx')
-
-    implementation libs.androidx.lifecycle.livedata
-    implementation libs.androidx.paging
-    implementation libs.androidx.room.runtime
-    ksp libs.androidx.room.compiler
-    implementation libs.kotlinx.coroutines
-
-    testImplementation project(':components:support-test')
-    testImplementation project(':components:support-test-libstate')
-
-    testImplementation libs.androidx.test.junit
-    testImplementation libs.kotlinx.coroutines.test
-    testImplementation libs.robolectric
-
-    androidTestImplementation project(':components:support-android-test')
-
-    androidTestImplementation libs.androidx.arch.core.testing
-    androidTestImplementation libs.androidx.room.testing
-    androidTestImplementation libs.androidx.test.core
-    androidTestImplementation libs.androidx.test.rules
-    androidTestImplementation libs.androidx.test.runner
-    androidTestImplementation libs.kotlin.test
-    androidTestImplementation libs.kotlinx.coroutines.test
-
-    androidTestRuntimeOnly libs.okhttp
 }
 
 apply from: '../../../common-config.gradle'

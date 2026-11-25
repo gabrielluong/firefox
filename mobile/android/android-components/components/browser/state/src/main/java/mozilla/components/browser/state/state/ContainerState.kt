@@ -8,43 +8,66 @@ package mozilla.components.browser.state.state
  * Value type that represents the state of a container also known as a contextual identity.
  *
  * @property contextId The session context ID also known as cookie store ID for the container.
- * @property name Name of the container.
+ * @property label The [Label] of the container.
  * @property color The color for the container. This can be shown in tabs belonging to this container.
  * @property icon The icon for the container.
  */
 data class ContainerState(
     val contextId: String,
-    val name: String,
+    val label: Label,
     val color: Color,
     val icon: Icon,
 ) {
-    /** Enum of container color. */
-    enum class Color(val color: String) {
-        BLUE("blue"),
-        TURQUOISE("turquoise"),
-        GREEN("green"),
-        YELLOW("yellow"),
-        ORANGE("orange"),
-        RED("red"),
-        PINK("pink"),
-        PURPLE("purple"),
-        TOOLBAR("toolbar"),
+    /**
+     * How a container gets its label. The shipped default containers carry a well-known label that
+     * consumers localize, until the user renames them.
+     */
+    sealed interface Label {
+        /** A container with a name of its own, either created or renamed by the user. */
+        data class Custom(val name: String) : Label
+
+        /** The shipped "Personal" container. */
+        data object Personal : Label
+
+        /** The shipped "Work" container. */
+        data object Work : Label
+
+        /** The shipped "Banking" container. */
+        data object Banking : Label
+
+        /** The shipped "Shopping" container. */
+        data object Shopping : Label
     }
 
-    /** Enum of container icon. */
-    enum class Icon(val icon: String) {
-        FINGERPRINT("fingerprint"),
-        BRIEFCASE("briefcase"),
-        DOLLAR("dollar"),
-        CART("cart"),
-        CIRCLE("circle"),
-        GIFT("gift"),
-        VACATION("vacation"),
-        FOOD("food"),
-        FRUIT("fruit"),
-        PET("pet"),
-        TREE("tree"),
-        CHILL("chill"),
-        FENCE("fence"),
+    /** Enum of container colors, in the order a container editor offers them. */
+    enum class Color {
+        GRAY,
+        YELLOW,
+        ORANGE,
+        RED,
+        PINK,
+        PURPLE,
+        VIOLET,
+        BLUE,
+        CYAN,
+        GREEN,
+    }
+
+    /** Enum of container icons, in the order a container editor offers them. */
+    enum class Icon {
+        FINGERPRINT,
+        BRIEFCASE,
+        DOLLAR,
+        CART,
+        VACATION,
+        GIFT,
+        FOOD,
+        FRUIT,
+        PET,
+        TREE,
+        CHILL,
+        CIRCLE,
+        FENCE,
+        ROBOT,
     }
 }

@@ -20,7 +20,7 @@ import mozilla.components.lib.state.State
  *   list.
  * @property selectedTabId the ID of the currently selected (active) tab.
  * @property customTabs the list of custom tabs, defaults to an empty list.
- * @property containers A map of [SessionState.contextId] and their respective container [ContainerState].
+ * @property containers An ordered map of [SessionState.contextId] and their respective container [ContainerState].
  * @property extensions A map of extension IDs and web extensions of all installed web extensions. The extensions here
  *   represent the default values for all [BrowserState.extensions] and can be overridden per [SessionState].
  * @property webExtensionPromptRequest the actual active web extension prompt request.

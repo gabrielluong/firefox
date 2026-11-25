@@ -13,6 +13,11 @@ permalink: /changelog/
   * 🆕 Added `rememberSyncedTextFieldState`, which remembers a `TextFieldState` kept in sync with a caller-owned string, for moving value-based text fields onto the state-based APIs. [Bug 2094916](https://bugzilla.mozilla.org/show_bug.cgi?id=2094916)
   * ⚠️ **Breaking change**: Removed the `visualTransformation` parameter from `TextField`. Use `SecureTextField` for password input. [Bug 2094916](https://bugzilla.mozilla.org/show_bug.cgi?id=2094916)
   * 🆕 Added `SecureTextField`, an outlined text field for password input that masks its text through a `TextObfuscationMode`. [Bug 2094916](https://bugzilla.mozilla.org/show_bug.cgi?id=2094916)
+* **browser-state**
+  * ⚠️ **Breaking change**: `ContainerState` takes a `Label` in place of its `name`, so the default containers can be localized, and its `Color` and `Icon` enums match the containers Firefox Desktop offers.
+  * ⚠️ **Breaking change**: Replaced `ContainerAction.AddContainerAction`, `AddContainersAction` and `RemoveContainerAction` with `ContainerAction.UpdateContainersAction`, which replaces `BrowserState.containers`.
+* **feature-toolbar**
+  * ⚠️ **Breaking change**: `ContainerToolbarFeature` requires a `containerLabel` callback for the content description of the container page action, and updates the page action when the selected tab's container changes.
 * **concept-engine**
   * 🆕 Added `DownloadDelegate.getContentFileName`, which returns the filename a content provider has for a `content://` URI. [Bug 2071966](https://bugzilla.mozilla.org/show_bug.cgi?id=2071966)
 * **support-ktx**
